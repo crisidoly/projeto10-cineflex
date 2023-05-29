@@ -17,13 +17,13 @@ export default function Horario({filme}) {
     ola = 
     (
     <div>
-      <SessionContainer>
+      <SessionContainer data-test="movie-day">
         <p>{filme.weekday}</p> - {filme.date}
         <ButtonsContainer>
           
             {filme.showtimes.map(i => { return ( 
             <Link to={`/assentos/${i.id}`}>
-            <button onClick={() => navegar}> {i.name} </button> 
+            <button data-test="showtime" onClick={() => navegar}> {i.name} </button> 
             </Link>
             ) } )}
          

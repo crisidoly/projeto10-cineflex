@@ -6,7 +6,8 @@ import Assento from "./Assento.jsx";
 
 export default function SeatsPage() {
   const [idSessao, setIdSessao] = useState([]);
-  const [assentos, setAssentos] = useState([])
+  const [assentos, setAssentos] = useState([]);
+  const [assentoSelecionado, setAssentoSelecionado] = useState([])
 
   const parametros = useParams();
   let teste = "";
@@ -27,40 +28,56 @@ export default function SeatsPage() {
     fetchFilme();
   }, []);
 
+  function selecionarAssento(botaoAssento){
+    if (!botaoAssento.isAvailable) {
+        alert("Esse assento não está disponível");
+        return;
+    }
+
+    const isSelected = assentoSelecionado.some((s) => s.id === botaoAssento.id);
+        const updatedSeats = isSelected
+            ? assentoSelecionado.filter((s) => s.id !== botaoAssento.id)
+            : [...assentoSelecionado, botaoAssento];
+
+        setAssentoSelecionado(updatedSeats);
+  }
+
   return (
         <PageContainer>
             Selecione o(s) assento(s)
 
             <SeatsContainer>
-                {/* <Assento/> */}
                 {assentos.map((botaoAssento) => (
                 <Assento botaoAssento={botaoAssento}
-                  key={botaoAssento.id}/>
+                  key={botaoAssento.id}
+                  selecionarAssento={() => selecionarAssento(botaoAssento)}
+                  assentoSelecionado={assentoSelecionado.some((s) => s.id === botaoAssento.id)}
+                  />
           
                 ))}
             </SeatsContainer>
 
             <CaptionContainer>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle status={"selected"} />
                     Selecionado
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle status={"available"} />
                     Disponível
                 </CaptionItem>
                 <CaptionItem>
-                    <CaptionCircle />
+                    <CaptionCircle status={"unavailable"} />
                     Indisponível
                 </CaptionItem>
             </CaptionContainer>
 
             <FormContainer>
                 Nome do Comprador:
-                <input placeholder="Digite seu nome..." />
+                <input data-test="client-name" placeholder="Digite seu nome..." />
 
                 CPF do Comprador:
-                <input placeholder="Digite seu CPF..." />
+                <input data-test="client-cpf" placeholder="Digite seu CPF..." />
 
                 <button>Reservar Assento(s)</button>
             </FormContainer>
@@ -122,8 +139,24 @@ const CaptionContainer = styled.div`
     margin: 20px;
 `
 const CaptionCircle = styled.div`
-    border: 1px solid blue;         // Essa cor deve mudar
-    background-color: lightblue;    // Essa cor deve mudar
+    border: 1px solid ${(props) => {
+        if (props.status === "selected"){
+            return "#0E7D71"
+        } else if(props.status === "available"){
+            return "#7B8B99"
+        } else {
+            return "#F7C52B"
+        }
+    }};
+    background-color: ${(props) => {
+        if (props.status === "selected"){
+            return "#1AAE9E"
+        } else if(props.status === "available"){
+            return "#C3CFD9"
+        } else {
+            return "#FBE192"
+        }
+    }};
     height: 25px;
     width: 25px;
     border-radius: 25px;
