@@ -1,13 +1,16 @@
 import axios from "axios";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Assento from "./Assento.jsx";
 
-export default function SeatsPage() {
+export default function SeatsPage({setInfoCompra, infoFilme}) {
   const [idSessao, setIdSessao] = useState([]);
   const [assentos, setAssentos] = useState([]);
   const [assentoSelecionado, setAssentoSelecionado] = useState([])
+  const [infoComprador, setInfoComprador] = useState({ name: "" , cpf: ""})
+
+  const navigate = useNavigate()
 
   const parametros = useParams();
   let teste = "";
@@ -42,6 +45,45 @@ export default function SeatsPage() {
         setAssentoSelecionado(updatedSeats);
   }
 
+  
+  function Formulario(e) {
+      setInfoComprador({...infoComprador, [e.target.name]: e.target.value})
+    }
+    
+    function comprarIngresso(e){
+      e.preventDefault()
+
+      if (assentoSelecionado.length === 0) {
+        alert('Selecione um assento.')
+        return
+      }
+
+      const ids = assentoSelecionado.map((a) => a.id)
+      const data = {
+        infoComprador,
+        ids
+      }
+      const promise = axios.post('https://mock-api.driven.com.br/api/v8/cineflex/seats/book-many', data)
+
+      promise.then((res) => {
+
+        const infos = {
+            movie: infoFilme.title,
+            date: idSessao.day.weekday,
+            hour: idSessao.name,
+            url: idSessao.movie.posterURL,
+            buyer: infoComprador.name,
+            cpf: infoComprador.cpf,
+            seats: assentoSelecionado.map((a) => a.name)
+        }
+        setInfoCompra(infos)
+        navigate("/sucesso")
+      })
+      promise.catch((err) => {
+        console.log(err)
+      })
+    }
+
   return (
         <PageContainer>
             Selecione o(s) assento(s)
@@ -72,23 +114,41 @@ export default function SeatsPage() {
                 </CaptionItem>
             </CaptionContainer>
 
-            <FormContainer>
+            <FormContainer onSubmit={comprarIngresso}>
                 Nome do Comprador:
-                <input data-test="client-name" placeholder="Digite seu nome..." />
+                <input 
+                    data-test="client-name"
+                    required
+                    type="text"
+                    id = "name"
+                    name = "name"
+                    value={infoComprador.name}
+                    placeholder="Digite seu nome..." 
+                    onChange={Formulario}
+                />
 
                 CPF do Comprador:
-                <input data-test="client-cpf" placeholder="Digite seu CPF..." />
+                <input 
+                    data-test="client-cpf"
+                    required
+                    type="text"
+                    id = "cpf"
+                    name = "cpf"
+                    value={infoComprador.cpf}
+                    placeholder="Digite seu CPF..." 
+                    onChange={Formulario}
+                />
 
-                <button>Reservar Assento(s)</button>
+                <button type="submit">Reservar Assento(s)</button>
             </FormContainer>
 
             <FooterContainer>
                 <div>
-                    <img src={""} alt="poster" />
+                    {/* <img src={idSessao.movie.posterURL} alt="poster" /> */}
                 </div>
                 <div>
-                    <p>Tudo em todo lugar ao mesmo tempo</p>
-                    <p>Sexta - 14h00</p>
+                    <p>{infoFilme.title}</p>
+                    {/* <p>{idSessao.day.weekday} - {idSessao.name}</p> */}
                 </div>
             </FooterContainer>
 
@@ -117,7 +177,7 @@ const SeatsContainer = styled.div`
     justify-content: center;
     margin-top: 20px;
 `
-const FormContainer = styled.div`
+const FormContainer = styled.form`
     width: calc(100vw - 40px); 
     display: flex;
     flex-direction: column;

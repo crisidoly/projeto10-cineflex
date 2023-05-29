@@ -15,7 +15,7 @@ export default function Assento({botaoAssento, selecionarAssento, assentoSelecio
     } else {
       setStatus("unavailable")
     }
-  })
+  }, [assentoSelecionado])
 
   return(
   <SeatItem data-test="seat" onClick={selecionarAssento} status={status}><p>{botaoAssento.name}</p></SeatItem>

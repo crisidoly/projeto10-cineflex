@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import Horario from "./Horario";
 
-export default function SessionsPage() {
+export default function SessionsPage({setInfoFilme}) {
   const { id } = useParams();
   const [filme, setFilme] = useState([]);
   const [horarioFilme, setHorarioFilme] = useState([]);
@@ -17,6 +17,7 @@ export default function SessionsPage() {
         );
         setFilme(() => {return response.data});
         setHorarioFilme(response.data.days);
+        setInfoFilme(response.data)
       } catch (error) {
         console.error(error);
       }

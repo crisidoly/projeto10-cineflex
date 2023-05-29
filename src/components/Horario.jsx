@@ -3,8 +3,6 @@ import styled from "styled-components"
 
 export default function Horario({filme}) {
   const navigate = useNavigate();
-  
- 
 
   let ola = "";
 
